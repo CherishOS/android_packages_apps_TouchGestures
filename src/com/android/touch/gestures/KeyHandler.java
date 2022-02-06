@@ -197,18 +197,6 @@ public class KeyHandler implements DeviceKeyHandler {
                 case TouchscreenGestureConstants.ACTION_FLASHLIGHT:
                     toggleFlashlight();
                     break;
-                case TouchscreenGestureConstants.ACTION_BROWSER:
-                    launchBrowser();
-                    break;
-                case TouchscreenGestureConstants.ACTION_DIALER:
-                    launchDialer();
-                    break;
-                case TouchscreenGestureConstants.ACTION_EMAIL:
-                    launchEmail();
-                    break;
-                case TouchscreenGestureConstants.ACTION_MESSAGES:
-                    launchMessages();
-                    break;
                 case TouchscreenGestureConstants.ACTION_PLAY_PAUSE_MUSIC:
                     playPauseMusic();
                     break;
@@ -230,6 +218,18 @@ public class KeyHandler implements DeviceKeyHandler {
                 case TouchscreenGestureConstants.ACTION_WAKE_DEVICE:
                     wakeDevice();
                     break;
+                case TouchscreenGestureConstants.ACTION_BROWSER:
+                case TouchscreenGestureConstants.ACTION_DIALER:
+                case TouchscreenGestureConstants.ACTION_EMAIL:
+                case TouchscreenGestureConstants.ACTION_MESSAGES:
+                case TouchscreenGestureConstants.ACTION_WECHAT_PAY:
+                case TouchscreenGestureConstants.ACTION_ALIPAY_PAY:
+                case TouchscreenGestureConstants.ACTION_WECHAT_SCAN:
+                case TouchscreenGestureConstants.ACTION_ALIPAY_SCAN:
+                case TouchscreenGestureConstants.ACTION_ALIPAY_TRIP:
+                case TouchscreenGestureConstants.ACTION_WALLET_TRIP:
+                    launchActivity(msg.arg1);
+                    break;
             }
         }
     }
@@ -242,31 +242,10 @@ public class KeyHandler implements DeviceKeyHandler {
         doHapticFeedback();
     }
 
-    private void launchBrowser() {
+    private void launchActivity(int action) {
         mGestureWakeLock.acquire(GESTURE_WAKELOCK_DURATION);
         mPowerManager.wakeUp(SystemClock.uptimeMillis(), GESTURE_WAKEUP_REASON);
-        ActionUtils.triggerAction(mContext, TouchscreenGestureConstants.ACTION_BROWSER);
-        doHapticFeedback();
-    }
-
-    private void launchDialer() {
-        mGestureWakeLock.acquire(GESTURE_WAKELOCK_DURATION);
-        mPowerManager.wakeUp(SystemClock.uptimeMillis(), GESTURE_WAKEUP_REASON);
-        ActionUtils.triggerAction(mContext, TouchscreenGestureConstants.ACTION_DIALER);
-        doHapticFeedback();
-    }
-
-    private void launchEmail() {
-        mGestureWakeLock.acquire(GESTURE_WAKELOCK_DURATION);
-        mPowerManager.wakeUp(SystemClock.uptimeMillis(), GESTURE_WAKEUP_REASON);
-        ActionUtils.triggerAction(mContext, TouchscreenGestureConstants.ACTION_EMAIL);
-        doHapticFeedback();
-    }
-
-    private void launchMessages() {
-        mGestureWakeLock.acquire(GESTURE_WAKELOCK_DURATION);
-        mPowerManager.wakeUp(SystemClock.uptimeMillis(), GESTURE_WAKEUP_REASON);
-        ActionUtils.triggerAction(mContext, TouchscreenGestureConstants.ACTION_MESSAGES);
+        ActionUtils.triggerAction(mContext, action);
         doHapticFeedback();
     }
 
@@ -345,13 +324,10 @@ public class KeyHandler implements DeviceKeyHandler {
             return;
         }
 
-        if (mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-            final boolean enabled = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.TOUCHSCREEN_GESTURE_HAPTIC_FEEDBACK, 1) != 0;
-            if (enabled) {
-                mVibrator.vibrate(VibrationEffect.createOneShot(50,
-                        VibrationEffect.DEFAULT_AMPLITUDE));
-            }
+        final boolean enabled = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.TOUCHSCREEN_GESTURE_HAPTIC_FEEDBACK, 1) != 0;
+        if (enabled) {
+            mVibrator.vibrate(VibrationEffect.get(VibrationEffect.EFFECT_CLICK));
         }
     }
 
